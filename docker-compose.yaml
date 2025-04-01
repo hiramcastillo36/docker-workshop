@@ -1,6 +1,12 @@
 version: '3'
-
 services:
+  # Aplicación Flask
+  # Este servicio ejecuta la aplicación Flask
+  # Construye la imagen desde el Dockerfile en el directorio ./flask-app
+  # y expone el puerto 8000 a la máquina host
+  # También monta el directorio ./flask-app en /code dentro del contenedor
+  # y establece variables de entorno para la conexión a MySQL
+  # Depende de que el servicio MySQL esté activo y funcionando
   flask-app:
     build: ./flask-app
     ports:
@@ -14,7 +20,19 @@ services:
       - MYSQL_DATABASE=flaskdb
     depends_on:
       - mysql
-
+  # Base de Datos MySQL
+  # Este servicio ejecuta la base de datos MySQL
+  # Utiliza la imagen oficial de MySQL 8.0
+  # Establece la contraseña de root, nombre de la base de datos, usuario y contraseña del usuario
+  # También monta un volumen para almacenamiento persistente de datos
+  # e inicializa la base de datos con un script SQL
+  # El script SQL se monta desde el directorio ./mysql
+  # y se ejecuta cuando el contenedor se crea por primera vez
+  # El volumen mysql-data se utiliza para persistir los datos de MySQL
+  # El archivo init.sql debe contener los comandos SQL para configurar la base de datos
+  # y cualquier dato inicial
+  # El servicio MySQL se llama 'mysql' y puede ser accedido por la aplicación Flask
+  # usando el nombre de host 'mysql'
   mysql:
     image: mysql:8.0
     environment:
@@ -25,6 +43,5 @@ services:
     volumes:
       - mysql-data:/var/lib/mysql
       - ./mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
-
 volumes:
   mysql-data:
